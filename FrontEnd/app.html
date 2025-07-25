@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <title>HiveMind – Collaborative Editor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <base href="./">
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="editor.css" />
+</head>
+<body>
+  <header class="app-header" role="banner">
+    <a href="index.html" class="onboarding-logo" style="text-decoration:none;">Hive<span class="logo-accent">Mind</span></a>
+    <nav class="app-nav" aria-label="Main actions">
+      <button id="run-btn" type="button" class="btn-small cta">Run Code</button>
+      <button id="ai-generate-btn" type="button" class="btn-small cta">Generate</button>
+      <button id="ai-explain-btn" type="button" class="btn-small cta">Explain</button>
+      <button id="ai-debug-btn" type="button" class="btn-small cta">Debug</button>
+    </nav>
+    <div class="profile-wrapper">
+      <button id="profile-btn" class="profile-btn" aria-label="Open user profile menu">
+        <span id="user-initials">U</span>
+      </button>
+      <div id="profile-menu" class="profile-menu" hidden>
+        <div class="profile-info">
+          <strong id="profile-name">User Name</strong><br>
+          <small id="profile-email">user@example.com</small>
+        </div>
+        <button id="logout-btn" type="button" class="btn-small cta">Logout</button>
+      </div>
+    </div>
+  </header>
+  <main class="app-main">
+    <section class="editor-section">
+      <label for="code-editor" class="visually-hidden">Code editor</label>
+      <textarea id="code-editor" spellcheck="false" placeholder="// Write or paste your code here..."></textarea>
+    </section>
+    <aside class="output-section">
+      <div class="output-header">
+        <label for="output-box">Output:</label>
+        <button id="copy-output-btn" class="btn-small">📋 Copy</button>
+      </div>
+      <pre id="output-box" class="output-box"></pre>
+    </aside>
+  </main>
+  
+  <div id="modal" class="modal" role="dialog" hidden>
+    <div class="glassmorphic-container" style="margin:0;">
+      <p id="modal-message"></p>
+      <button id="modal-close" class="cta">Close</button>
+    </div>
+  </div>
+
+  <div id="welcome-modal" class="modal" role="dialog" hidden>
+    <div class="glassmorphic-container" style="margin:0; text-align:center;">
+        <h2 class="neon-glow-heading">Welcome to the Editor!</h2>
+        <p>This is your collaborative workspace. Invite others by sharing the URL. Use the AI buttons to supercharge your coding.</p>
+        <button id="continue-to-editor" class="cta">Start Coding</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="editor.js"></script>
+</body>
+</html>
