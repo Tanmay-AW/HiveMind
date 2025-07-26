@@ -8,36 +8,11 @@
   ],
   "rewrites": [
     {
-      "source": "/index.html",
-      "destination": "/FrontEnd/index.html"
+      "source": "/api/(.*)",
+      "destination": "https://hivemind-backend-9u2f.onrender.com/api/$1"
     },
     {
-      "source": "/app.html",
-      "destination": "/FrontEnd/app.html"
-    },
-    {
-      "source": "/otp.html",
-      "destination": "/FrontEnd/otp.html"
-    },
-    {
-      "source": "/style.css",
-      "destination": "/FrontEnd/style.css"
-    },
-    {
-      "source": "/editor.js",
-      "destination": "/FrontEnd/editor.js"
-    },
-    {
-      "source": "/api/ai/debug",
-      "destination": "/api/ai/debug"
-    },
-    {
-      "source": "/api/ai/optimize",
-      "destination": "/api/ai/optimize"
-    },
-    {
-      "source": "/api/ai/suggest",
-      "destination": "/api/ai/suggest"
+      "source": "/(.*)",
+      "destination": "/FrontEnd/$1"
     }
-  ]
-}
+  ]}
