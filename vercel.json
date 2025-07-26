@@ -8,7 +8,7 @@
   ],
   "rewrites": [
     {
-      "source": "/",
+      "source": "/index.html",
       "destination": "/FrontEnd/index.html"
     },
     {
@@ -22,6 +22,22 @@
     {
       "source": "/style.css",
       "destination": "/FrontEnd/style.css"
+    },
+    {
+      "source": "/editor.js",
+      "destination": "/FrontEnd/editor.js"
+    },
+    {
+      "source": "/api/ai/debug",
+      "destination": "/api/ai/debug"
+    },
+    {
+      "source": "/api/ai/optimize",
+      "destination": "/api/ai/optimize"
+    },
+    {
+      "source": "/api/ai/suggest",
+      "destination": "/api/ai/suggest"
     }
   ]
 }
