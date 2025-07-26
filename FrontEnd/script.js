@@ -131,9 +131,19 @@ document.addEventListener('DOMContentLoaded', () => {
             formError.textContent = ""; // Clear previous errors
             try {
                 console.log('📡 Sending login request to:', `${API_BASE_URL}/api/auth/login`);
-                const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                console.log('🔧 Request details:', {
+                    url: `${API_BASE_URL}/api/auth/login`,
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    body: { email: email.value.trim(), password: '***' }
+                });
+                
+                const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
                     body: JSON.stringify({ email: email.value.trim(), password: password.value })
                 });
                 const data = await res.json();
