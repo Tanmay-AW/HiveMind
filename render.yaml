@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: hivemind-backend
+    env: node
+    plan: free
+    buildCommand: cd BackEnd && npm install
+    startCommand: cd BackEnd && node server.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        generateValue: true
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        value: https://hive-mind-puce.vercel.app
+      - key: GMAIL_USER
+        generateValue: true
+      - key: GMAIL_APP_PASSWORD
+        generateValue: true
+      - key: OPENAI_API_KEY
+        generateValue: true

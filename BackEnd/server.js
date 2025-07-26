@@ -16,9 +16,12 @@ const server = http.createServer(app);
 
 // --- Middleware ---
 const allowedOrigins = [
-  'https://your-live-frontend-url.vercel.app', // Replace with your Vercel URL later
-  'http://localhost:3000', // Your current frontend address
-  'http://127.0.0.1:3000'  // Also for your current frontend
+  'https://hive-mind-puce.vercel.app', // Vercel frontend URL
+  'https://hivemind-tanmay.vercel.app', // Alternative Vercel URL
+  'http://localhost:3000', // Local development
+  'http://localhost:8080', // Local development
+  'http://127.0.0.1:3000',  // Local development
+  'http://127.0.0.1:8080'   // Local development
 ];
 
 const corsOptions = {
