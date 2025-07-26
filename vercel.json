@@ -6,26 +6,26 @@
       "use": "@vercel/static"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/",
-      "dest": "/FrontEnd/index.html"
+      "source": "/",
+      "destination": "/FrontEnd/index.html"
     },
     {
-      "src": "/app.html",
-      "dest": "/FrontEnd/app.html"
+      "source": "/app.html",
+      "destination": "/FrontEnd/app.html"
     },
     {
-      "src": "/otp.html",
-      "dest": "/FrontEnd/otp.html"
+      "source": "/otp.html",
+      "destination": "/FrontEnd/otp.html"
     },
     {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
-      "dest": "/FrontEnd/$1"
+      "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))",
+      "destination": "/FrontEnd/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/FrontEnd/index.html"
+      "source": "/(.*)",
+      "destination": "/FrontEnd/index.html"
     }
   ],
   "headers": [
