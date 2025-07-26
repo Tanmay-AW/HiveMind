@@ -71,15 +71,64 @@
     &copy; 2024 HiveMind — built for creators
   </footer>
 
-  <!-- Modals (Login, Signup, OTP) -->
-  <!-- [NO CHANGES REQUIRED HERE, YOUR ORIGINAL STRUCTURE IS PERFECT] -->
+  <!-- Login Modal -->
+  <div id="login-modal" class="modal" role="dialog" aria-modal="true" hidden>
+    <div class="glassmorphic-container" style="margin:0; padding: 2rem 2.5rem; max-width:400px;" tabindex="-1">
+      <button class="modal-close-x" aria-label="Close dialog">&times;</button>
+      <h2 class="neon-glow-heading">Login</h2>
+      <form id="loginForm" class="auth-form" novalidate>
+        <div class="form-group">
+          <input type="email" id="login-email" required class="auth-input" placeholder=" " />
+          <label for="login-email" class="form-label">Email</label>
+        </div>
+        <div class="form-group">
+          <div class="password-wrapper">
+            <input type="password" id="login-password" required class="auth-input" placeholder=" " />
+            <label for="login-password" class="form-label">Password</label>
+            <button type="button" class="password-toggle" aria-label="Toggle password visibility">👁️</button>
+          </div>
+        </div>
+        <button type="submit" class="cta" id="loginBtn" disabled>Login</button>
+        <div id="login-formError" class="error-message" role="alert"></div>
+        <p class="redirect">Don't have an account? <a href="#" id="open-signup-from-login">Sign up</a></p>
+      </form>
+    </div>
+  </div>
 
-  <!-- ✅ CONFIG Inline + Script Tags Deferred -->
-  <script>
-    window.CONFIG = {
-      BACKEND_URL: "https://hivemind-backend-9u2f.onrender.com"
-    };
-  </script>
-  <script src="script.js" defer></script>
+  <!-- Signup Modal -->
+  <div id="signup-modal" class="modal" role="dialog" aria-modal="true" hidden>
+    <div class="glassmorphic-container" style="margin:0; padding: 2rem 2.5rem; max-width:400px;" tabindex="-1">
+      <button class="modal-close-x" aria-label="Close dialog">&times;</button>
+      <h2 class="neon-glow-heading">Sign Up</h2>
+      <form id="signupForm" class="auth-form" novalidate>
+        <div class="form-group"><input type="text" id="signup-name" required class="auth-input" placeholder=" " /><label for="signup-name" class="form-label">Name</label></div>
+        <div class="form-group"><input type="email" id="signup-email" required class="auth-input" placeholder=" " /><label for="signup-email" class="form-label">Email</label></div>
+        <div class="form-group">
+            <div class="password-wrapper"><input type="password" id="signup-password" required class="auth-input" placeholder=" " /><label for="signup-password" class="form-label">Password</label><button type="button" class="password-toggle">👁️</button></div>
+            <div class="strength-meter"><div class="strength-bar"><div class="strength-fill"></div></div><span class="strength-text"></span></div>
+        </div>
+        <button type="submit" class="cta" id="signupBtn" disabled>Create Account</button>
+        <div id="signup-formError" class="error-message" role="alert"></div>
+        <p class="redirect">Already have an account? <a href="#" id="open-login-from-signup">Login</a></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- OTP Modal -->
+   <div id="otp-modal" class="modal" role="dialog" aria-modal="true" hidden>
+    <div class="glassmorphic-container" style="margin:0; padding: 2rem 2.5rem; max-width:400px;" tabindex="-1">
+      <h2 class="neon-glow-heading">Verify Email</h2>
+      <p class="subtext">Enter the 6-digit code sent to your email.</p>
+      <form id="otpForm" class="auth-form">
+        <div class="form-group"><input type="text" id="otpCode" required class="auth-input" maxlength="6" style="text-align:center; letter-spacing: 0.5em;" placeholder=" " /><label for="otpCode" class="form-label">OTP Code</label></div>
+        <button type="submit" class="cta" id="verifyBtn" disabled>Verify</button>
+        <div id="otp-formError" class="error-message" role="alert"></div>
+        <p class="redirect"><a href="#" id="resendOtp">Resend OTP</a></p>
+      </form>
+    </div>
+  </div>
+  
+  <script src="config.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
