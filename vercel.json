@@ -20,8 +20,24 @@
       "destination": "/FrontEnd/otp.html"
     },
     {
-      "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot))$",
-      "destination": "/FrontEnd/$1"
+      "source": "/style.css",
+      "destination": "/FrontEnd/style.css"
+    },
+    {
+      "source": "/editor.css",
+      "destination": "/FrontEnd/editor.css"
+    },
+    {
+      "source": "/script.js",
+      "destination": "/FrontEnd/script.js"
+    },
+    {
+      "source": "/editor.js",
+      "destination": "/FrontEnd/editor.js"
+    },
+    {
+      "source": "/config.js",
+      "destination": "/FrontEnd/config.js"
     },
     {
       "source": "/(.*)",
