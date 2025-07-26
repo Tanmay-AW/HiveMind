@@ -90,6 +90,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Profile dropdown session check on load
 document.addEventListener('DOMContentLoaded', async () => {
+  // Prevent multiple redirects
+  if (window.authCheckInProgress) return;
+  window.authCheckInProgress = true;
+  
   if (!requireAuthOrRedirect()) return;
   setOutput("");
   
@@ -154,6 +158,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     localStorage.removeItem('profileEmail');
     window.location.href = 'index.html';
   }
+  
+  // Reset the flag after a delay
+  setTimeout(() => {
+    window.authCheckInProgress = false;
+  }, 1000);
 });
 
 // --- Action Buttons ---

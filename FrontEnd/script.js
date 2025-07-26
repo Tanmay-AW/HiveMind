@@ -360,9 +360,21 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Check authentication state on page load and initialize
+    // Prevent multiple redirects
+    if (window.authCheckInProgress) return;
+    window.authCheckInProgress = true;
+    
     checkAuthState().then(isAuthenticated => {
         if (!isAuthenticated) {
             initializePage();
+        } else {
+            // If already authenticated, just redirect once
+            console.log('✅ User already authenticated, redirecting to app...');
+            window.location.href = 'app.html';
         }
+        // Reset the flag after a delay
+        setTimeout(() => {
+            window.authCheckInProgress = false;
+        }, 1000);
     });
 });
