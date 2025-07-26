@@ -6,61 +6,14 @@
       "use": "@vercel/static"
     }
   ],
-  "rewrites": [
-    {
-      "source": "/",
-      "destination": "/FrontEnd/index.html"
-    },
-    {
-      "source": "/app.html",
-      "destination": "/FrontEnd/app.html"
-    },
-    {
-      "source": "/otp.html",
-      "destination": "/FrontEnd/otp.html"
-    },
-    {
-      "source": "/style.css",
-      "destination": "/FrontEnd/style.css"
-    },
-    {
-      "source": "/editor.css",
-      "destination": "/FrontEnd/editor.css"
-    },
-    {
-      "source": "/script.js",
-      "destination": "/FrontEnd/script.js"
-    },
-    {
-      "source": "/editor.js",
-      "destination": "/FrontEnd/editor.js"
-    },
-    {
-      "source": "/config.js",
-      "destination": "/FrontEnd/config.js"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/FrontEnd/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
-    }
+  "routes": [
+    { "src": "/", "dest": "FrontEnd/index.html" },
+    { "src": "/app.html", "dest": "FrontEnd/app.html" },
+    { "src": "/otp.html", "dest": "FrontEnd/otp.html" },
+    { "src": "/style.css", "dest": "FrontEnd/style.css" },
+    { "src": "/script.js", "dest": "FrontEnd/script.js" },
+    { "src": "/editor.html", "dest": "FrontEnd/editor.html" },
+    { "src": "/editor.js", "dest": "FrontEnd/editor.js" },
+    { "src": "/editor.css", "dest": "FrontEnd/editor.css" }
   ]
-} 
+}
