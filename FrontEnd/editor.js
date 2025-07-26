@@ -22,7 +22,6 @@ let runBtn, aiGenBtn, aiExplainBtn, aiDebugBtn, codeEditor, copyOutputBtn;
 let profileBtn, profileMenu, logoutBtn;
 let modal, modalMsg, modalCloseBtn;
 let welcomeModal, continueBtn;
-let languageSelect, aiPromptContainer, aiPromptInput, aiPromptSubmit, aiPromptCancel;
 
 // Helpers
 function requireAuthOrRedirect() {
@@ -80,74 +79,6 @@ function setActionButtons(disabled) {
   });
 }
 
-// Get currently selected language
-function getSelectedLanguage() {
-  return languageSelect?.value || 'javascript';
-}
-
-// Show AI prompt input for code generation
-function showAIPromptInput() {
-  if (aiPromptContainer) {
-    aiPromptContainer.style.display = 'block';
-    aiPromptInput?.focus();
-  }
-}
-
-// Hide AI prompt input
-function hideAIPromptInput() {
-  if (aiPromptContainer) {
-    aiPromptContainer.style.display = 'none';
-    if (aiPromptInput) aiPromptInput.value = '';
-  }
-}
-
-// Update code editor placeholder based on selected language
-function updateEditorPlaceholder() {
-  if (!codeEditor) return;
-  const language = getSelectedLanguage();
-  if (language === 'python') {
-    codeEditor.placeholder = '# Write or paste your Python code here...';
-  } else {
-    codeEditor.placeholder = '// Write or paste your JavaScript code here...';
-  }
-}
-
-// Handle AI code generation with prompt
-async function handleAIGenerate(prompt) {
-  if (!requireAuthOrRedirect()) return;
-  
-  setActionButtons(true);
-  showModal("⏳ Generating code with AI...");
-  
-  try {
-    const language = getSelectedLanguage();
-    const res = await fetch(`${API_BASE_URL}/api/ai/generate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ 
-        description: prompt,
-        language: language 
-      })
-    });
-    const data = await res.json();
-    
-    if (data.success && data.code) {
-      codeEditor.value = data.code;
-      setOutput("✅ Code generated successfully.");
-    } else {
-      setOutput("❌ Failed to generate code: " + (data.error || "Unknown error"), true);
-    }
-  } catch (error) {
-    setOutput("❌ AI generation error: " + error.message, true);
-  }
-  
-  hideModal();
-  setActionButtons(false);
-}
-
 // Initialize DOM elements and event handlers
 function initializeElements() {
   console.log('🔍 Initializing DOM elements...');
@@ -159,13 +90,6 @@ function initializeElements() {
   aiDebugBtn = document.getElementById('ai-debug-btn');
   codeEditor = document.getElementById('code-editor');
   copyOutputBtn = document.getElementById('copy-output-btn');
-  
-  // Language and AI prompt elements
-  languageSelect = document.getElementById('language-select');
-  aiPromptContainer = document.getElementById('ai-prompt-container');
-  aiPromptInput = document.getElementById('ai-prompt-input');
-  aiPromptSubmit = document.getElementById('ai-prompt-submit');
-  aiPromptCancel = document.getElementById('ai-prompt-cancel');
   
   profileBtn = document.getElementById('profile-btn');
   profileMenu = document.getElementById('profile-menu');
@@ -185,8 +109,6 @@ function initializeElements() {
     aiExplainBtn: !!aiExplainBtn,
     aiDebugBtn: !!aiDebugBtn,
     codeEditor: !!codeEditor,
-    languageSelect: !!languageSelect,
-    aiPromptContainer: !!aiPromptContainer,
     profileBtn: !!profileBtn,
     profileMenu: !!profileMenu,
     logoutBtn: !!logoutBtn,
@@ -282,42 +204,6 @@ function setupEventHandlers() {
     });
   }
 
-  // Language selector change handler
-  if (languageSelect) {
-    languageSelect.addEventListener('change', updateEditorPlaceholder);
-    // Initialize placeholder
-    updateEditorPlaceholder();
-  }
-
-  // AI prompt input handlers
-  if (aiPromptSubmit) {
-    aiPromptSubmit.addEventListener('click', async () => {
-      const prompt = aiPromptInput?.value?.trim();
-      if (!prompt) {
-        showModal('Please enter a prompt for AI code generation.');
-        return;
-      }
-      
-      hideAIPromptInput();
-      await handleAIGenerate(prompt);
-    });
-  }
-
-  if (aiPromptCancel) {
-    aiPromptCancel.addEventListener('click', hideAIPromptInput);
-  }
-
-  if (aiPromptInput) {
-    aiPromptInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        aiPromptSubmit?.click();
-      } else if (e.key === 'Escape') {
-        hideAIPromptInput();
-      }
-    });
-  }
-
   // Action button handlers
   if (runBtn) {
     console.log('✅ Attaching Run button event handler');
@@ -339,17 +225,13 @@ function setupEventHandlers() {
       }
       
       try {
-        const language = getSelectedLanguage();
         const res = await fetch(`${API_BASE_URL}/api/ai/run`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           },
-          body: JSON.stringify({ 
-            code: codeEditor.value,
-            language: language 
-          })
+          body: JSON.stringify({ code: codeEditor.value })
         });
         const data = await res.json();
         setOutput(data.output ?? data.message ?? "No output.");
@@ -360,47 +242,48 @@ function setupEventHandlers() {
     });
   }
 
-  // AI Generate button handler - shows prompt input
   if (aiGenBtn) {
     console.log('✅ Attaching Generate button event handler');
-    aiGenBtn.addEventListener('click', () => {
+    aiGenBtn.addEventListener('click', async () => {
       if (!requireAuthOrRedirect()) return;
-      showAIPromptInput();
+      setActionButtons(true);
+      showModal("⏳ Generating code with AI...");
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/ai/generate`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ prompt: codeEditor.value })
+        });
+        const data = await res.json();
+        codeEditor.value = data.generated ?? "";
+        setOutput("✅ Code generated.");
+      } catch {
+        setOutput("❌ AI generation error", true);
+      }
+      hideModal();
+      setActionButtons(false);
     });
   }
 
   if (aiExplainBtn) {
     aiExplainBtn.addEventListener('click', async () => {
       if (!requireAuthOrRedirect()) return;
-      
-      const code = codeEditor.value?.trim();
-      if (!code) {
-        showModal("Please write some code first before explaining.");
-        return;
-      }
-      
       setActionButtons(true);
       showModal("⏳ Explaining code...");
       try {
-        const language = getSelectedLanguage();
         const res = await fetch(`${API_BASE_URL}/api/ai/explain`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           },
-          body: JSON.stringify({ 
-            code: code,
-            language: language 
-          })
+          body: JSON.stringify({ code: codeEditor.value })
         });
         const data = await res.json();
-        
-        if (data.success && data.explanation) {
-          setOutput(data.explanation);
-        } else {
-          setOutput("❌ Failed to explain code: " + (data.error || "No explanation available."), true);
-        }
+        setOutput(data.explanation ?? "No explanation available.");
       } catch {
         setOutput("❌ AI explanation error", true);
       }
@@ -412,36 +295,19 @@ function setupEventHandlers() {
   if (aiDebugBtn) {
     aiDebugBtn.addEventListener('click', async () => {
       if (!requireAuthOrRedirect()) return;
-      
-      const code = codeEditor.value?.trim();
-      if (!code) {
-        showModal("Please write some code first before debugging.");
-        return;
-      }
-      
       setActionButtons(true);
       showModal("⏳ Debugging with AI...");
       try {
-        const language = getSelectedLanguage();
         const res = await fetch(`${API_BASE_URL}/api/ai/debug`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           },
-          body: JSON.stringify({ 
-            code: code,
-            error: "Please analyze this code for potential bugs and improvements.",
-            language: language 
-          })
+          body: JSON.stringify({ code: codeEditor.value })
         });
         const data = await res.json();
-        
-        if (data.success && data.debug_info) {
-          setOutput(data.debug_info);
-        } else {
-          setOutput("❌ Failed to debug code: " + (data.error || "No debug result available."), true);
-        }
+        setOutput(data.debugged ?? data.message ?? "No debug result.");
       } catch {
         setOutput("❌ AI debugging error", true);
       }

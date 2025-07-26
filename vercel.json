@@ -6,14 +6,22 @@
       "use": "@vercel/static"
     }
   ],
-  "routes": [
-    { "src": "/", "dest": "FrontEnd/index.html" },
-    { "src": "/app.html", "dest": "FrontEnd/app.html" },
-    { "src": "/otp.html", "dest": "FrontEnd/otp.html" },
-    { "src": "/style.css", "dest": "FrontEnd/style.css" },
-    { "src": "/script.js", "dest": "FrontEnd/script.js" },
-    { "src": "/editor.html", "dest": "FrontEnd/editor.html" },
-    { "src": "/editor.js", "dest": "FrontEnd/editor.js" },
-    { "src": "/editor.css", "dest": "FrontEnd/editor.css" }
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/FrontEnd/index.html"
+    },
+    {
+      "source": "/app.html",
+      "destination": "/FrontEnd/app.html"
+    },
+    {
+      "source": "/otp.html",
+      "destination": "/FrontEnd/otp.html"
+    },
+    {
+      "source": "/style.css",
+      "destination": "/FrontEnd/style.css"
+    }
   ]
 }
