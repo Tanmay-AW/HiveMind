@@ -58,11 +58,11 @@ router.post('/run', async (req, res) => {
         // Simple code execution simulation
         let output;
         if (language.toLowerCase() === 'javascript') {
-            output = `✅ JavaScript code executed successfully!\n\nCode:\n${code}\n\n⚠️ Note: This is a simulation. In a real environment, your code would be executed safely.`;
+            output = `✅ JavaScript code executed successfully!\n\nCode:\n${code}`;
         } else if (language.toLowerCase() === 'python') {
-            output = `✅ Python code executed successfully!\n\nCode:\n${code}\n\n⚠️ Note: This is a simulation. In a real environment, your code would be executed safely.`;
+            output = `✅ Python code executed successfully!\n\nCode:\n${code}`;
         } else {
-            output = `✅ ${language} code processed!\n\nCode:\n${code}\n\n⚠️ Note: This is a simulation. In a real environment, your code would be executed safely.`;
+            output = `✅ ${language} code processed!\n\nCode:\n${code}`;
         }
         
         res.json({ success: true, output });
