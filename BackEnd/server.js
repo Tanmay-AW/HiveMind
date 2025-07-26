@@ -15,13 +15,24 @@ const app = express();
 const server = http.createServer(app);
 
 // --- Middleware ---
-// Use CORS to allow requests from your frontend
-app.use(cors({
-  origin: ['https://hive-mind-puce.vercel.app', 'https://hive-mind-p7vxqjpqf-tanmays-projects-1f734dcb.vercel.app'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+const allowedOrigins = [
+  'https://your-live-frontend-url.vercel.app', // Replace with your Vercel URL later
+  'http://localhost:3000', // Your current frontend address
+  'http://127.0.0.1:3000'  // Also for your current frontend
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or local files)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  }
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // --- API Routes ---
@@ -30,29 +41,19 @@ const aiRoutes = require('./routes/ai.routes.js');
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
 
-// --- API Health Check ---
-app.get('/', (req, res) => {
-    res.json({ 
-        message: 'HiveMind API is running',
-        status: 'OK',
-        timestamp: new Date().toISOString()
-    });
-});
-
-// --- 404 Handler for API Routes ---
-app.use('*', (req, res) => {
-    res.status(404).json({ 
-        error: 'API endpoint not found',
-        message: 'This is the HiveMind backend API. Please use the frontend at https://hive-mind-puce.vercel.app'
-    });
+// --- Static File Serving for Frontend ---
+const frontendPath = path.join(__dirname, '..', 'FrontEnd');
+app.use(express.static(frontendPath));
+app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
 // --- Socket.IO Real-time Logic ---
-const io = new Server(server, { cors: { origin: "*" } });
-require('./socket.js')(io); // Pass the 'io' instance to the socket handler
+const io = new Server(server, { cors: { origin: "*" } }); // Keeping this open for simplicity
+require('./socket.js')(io);
 
 // --- Database & Server Start ---
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3000;
 mongoose.connect(process.env.MONGO_URI)
     .then(() => {
         console.log('✅ MongoDB connected successfully.');

@@ -4,9 +4,9 @@
   "description": "HiveMind Frontend - Collaborative Code Editor",
   "main": "index.html",
   "scripts": {
-    "start": "serve . -p 3000",
+    "start": "node server.js",
     "build": "echo 'Frontend is static, no build required'",
-    "dev": "serve . -p 3000"
+    "dev": "nodemon server.js"
   },
   "keywords": [
     "collaborative",

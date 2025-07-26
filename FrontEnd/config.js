@@ -1,14 +1,16 @@
 // HiveMind Configuration
-// Update these values when deploying or changing environments
+
+const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
 const CONFIG = {
-    // Frontend URL (Vercel deployment)
-    FRONTEND_URL: "https://hive-mind-puce.vercel.app",
-    
-    // Backend URL (Render deployment)
-    BACKEND_URL: "https://hivemind-backend-9u2f.onrender.com",
-    
-    // API Endpoints
+    FRONTEND_URL: isLocalhost
+        ? "http://localhost:8080"
+        : "https://hive-mind-puce.vercel.app",
+
+    BACKEND_URL: isLocalhost
+        ? "http://localhost:3000" // ✅ CORRECT PORT NOW
+        : "https://hivemind-backend-9u2f.onrender.com",
+
     API_ENDPOINTS: {
         AUTH: {
             LOGIN: "/api/auth/login",
@@ -26,12 +28,10 @@ const CONFIG = {
     }
 };
 
-// Helper function to get full API URL
 function getApiUrl(endpoint) {
     return CONFIG.BACKEND_URL + endpoint;
 }
 
-// Export for use in other files
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { CONFIG, getApiUrl };
-} 
+}
