@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    const API_BASE_URL = "http://localhost:3000"; // IMPORTANT: PASTE YOUR RENDER/VERCEL BACKEND URL HERE (or http://localhost:3000 for local testing)
+    const API_BASE_URL = CONFIG.BACKEND_URL;
 
     // --- Authentication State Check ---
     const checkAuthState = async () => {

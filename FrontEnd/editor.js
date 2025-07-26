@@ -3,7 +3,7 @@
 // - Robust error handling, accessibility, keyboard shortcuts
 // - Maintainers: See comments for logic explanations
 
-const API_BASE_URL = "http://localhost:3000";  // TODO: Replace with your backend URL
+const API_BASE_URL = CONFIG.BACKEND_URL;
 const token = localStorage.getItem('token');
 
 // Helpers
