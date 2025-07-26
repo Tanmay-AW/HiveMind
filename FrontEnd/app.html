@@ -62,13 +62,8 @@
     </div>
   </div>
 
-  <!-- ✅ CONFIG Inline + Scripts Deferred -->
-  <script>
-    window.CONFIG = {
-      BACKEND_URL: "https://hivemind-backend-9u2f.onrender.com"
-    };
-  </script>
-  <script src="script.js" defer></script>
-  <script src="editor.js" defer></script>
+  <!-- Scripts - Load config first, then editor -->
+  <script src="config.js"></script>
+  <script src="editor.js"></script>
 </body>
 </html>

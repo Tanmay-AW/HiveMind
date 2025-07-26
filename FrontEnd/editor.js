@@ -3,8 +3,25 @@
 // - Robust error handling, accessibility, keyboard shortcuts
 // - Maintainers: See comments for logic explanations
 
-const API_BASE_URL = CONFIG.BACKEND_URL;
+console.log('🔧 Editor.js loading...');
+
+// Check if CONFIG is available
+if (typeof CONFIG === 'undefined') {
+  console.error('❌ CONFIG is not defined! Make sure config.js is loaded first.');
+} else {
+  console.log('✅ CONFIG loaded:', CONFIG);
+}
+
+const API_BASE_URL = CONFIG?.BACKEND_URL || 'https://hivemind-backend-9u2f.onrender.com';
 const token = localStorage.getItem('token');
+
+console.log('🔑 Token status:', token ? 'Present' : 'Missing');
+
+// Global variables for DOM elements
+let runBtn, aiGenBtn, aiExplainBtn, aiDebugBtn, codeEditor, copyOutputBtn;
+let profileBtn, profileMenu, logoutBtn;
+let modal, modalMsg, modalCloseBtn;
+let welcomeModal, continueBtn;
 
 // Helpers
 function requireAuthOrRedirect() {
@@ -14,6 +31,7 @@ function requireAuthOrRedirect() {
   }
   return true;
 }
+
 function setOutput(text, isError = false) {
   const box = document.getElementById('output-box');
   if (box) {
@@ -21,80 +39,298 @@ function setOutput(text, isError = false) {
     box.style.color = isError ? "var(--danger)" : "";
   }
 }
+
 function showModal(msg) {
-  const modal = document.getElementById('modal');
-  const modalMsg = document.getElementById('modal-message');
   if (modal && modalMsg) {
     modalMsg.textContent = msg;
     modal.removeAttribute('hidden');
     setTimeout(() => {
-      modal.querySelector('button')?.focus();
+      modalCloseBtn?.focus();
     }, 50);
   }
 }
+
 function hideModal() {
-  const modal = document.getElementById('modal');
   if (modal) modal.setAttribute('hidden', '');
 }
 
-// Modal close events (must be set after DOM is loaded)
-document.addEventListener('DOMContentLoaded', () => {
-  const modal = document.getElementById('modal');
-  if (modal) {
-    const closeBtn = modal.querySelector('#modal-close');
-    const modalContent = modal.querySelector('.modal-content');
-    if (closeBtn) closeBtn.addEventListener('click', hideModal);
-    modal.addEventListener('click', e => {
-      if (e.target === modal) hideModal();
-    });
-    if (modalContent) modalContent.addEventListener('keydown', e => {
-      if (e.key === "Escape") hideModal();
-    });
-  }
-});
-
 // Welcome Modal logic
 function showWelcomeModal() {
-  const welcomeModal = document.getElementById('welcome-modal');
   if (welcomeModal) {
     welcomeModal.removeAttribute('hidden');
     setTimeout(() => {
-      welcomeModal.querySelector('button, .cta')?.focus();
+      continueBtn?.focus();
     }, 50);
-    document.body.style.overflow = 'hidden'; // Prevent background scroll
+    document.body.style.overflow = 'hidden';
   }
 }
+
 function hideWelcomeModal() {
-  const welcomeModal = document.getElementById('welcome-modal');
   if (welcomeModal) {
     welcomeModal.setAttribute('hidden', '');
     document.body.style.overflow = '';
   }
 }
-document.addEventListener('DOMContentLoaded', () => {
-  // Show welcome modal on first load
-  showWelcomeModal();
-  // Handle continue button
-  const continueBtn = document.getElementById('continue-to-editor');
+
+// Utility to disable/enable buttons as a group
+function setActionButtons(disabled) {
+  [runBtn, aiGenBtn, aiExplainBtn, aiDebugBtn].forEach(btn => {
+    if (btn) btn.disabled = disabled;
+  });
+}
+
+// Initialize DOM elements and event handlers
+function initializeElements() {
+  console.log('🔍 Initializing DOM elements...');
+  
+  // Get DOM elements
+  runBtn = document.getElementById('run-btn');
+  aiGenBtn = document.getElementById('ai-generate-btn');
+  aiExplainBtn = document.getElementById('ai-explain-btn');
+  aiDebugBtn = document.getElementById('ai-debug-btn');
+  codeEditor = document.getElementById('code-editor');
+  copyOutputBtn = document.getElementById('copy-output-btn');
+  
+  profileBtn = document.getElementById('profile-btn');
+  profileMenu = document.getElementById('profile-menu');
+  logoutBtn = document.getElementById('logout-btn');
+  
+  modal = document.getElementById('modal');
+  modalMsg = document.getElementById('modal-message');
+  modalCloseBtn = document.getElementById('modal-close');
+  
+  welcomeModal = document.getElementById('welcome-modal');
+  continueBtn = document.getElementById('continue-to-editor');
+  
+  // Log element status
+  console.log('📋 Element status:', {
+    runBtn: !!runBtn,
+    aiGenBtn: !!aiGenBtn,
+    aiExplainBtn: !!aiExplainBtn,
+    aiDebugBtn: !!aiDebugBtn,
+    codeEditor: !!codeEditor,
+    profileBtn: !!profileBtn,
+    profileMenu: !!profileMenu,
+    logoutBtn: !!logoutBtn,
+    modal: !!modal,
+    welcomeModal: !!welcomeModal
+  });
+}
+
+// Setup all event handlers
+function setupEventHandlers() {
+  console.log('🔗 Setting up event handlers...');
+  
+  // Modal events
+  if (modalCloseBtn) {
+    modalCloseBtn.addEventListener('click', hideModal);
+    console.log('✅ Modal close button event handler attached');
+  } else {
+    console.warn('⚠️ Modal close button not found');
+  }
+  
+  if (modal) {
+    modal.addEventListener('click', e => {
+      if (e.target === modal) hideModal();
+    });
+    modal.addEventListener('keydown', e => {
+      if (e.key === "Escape") hideModal();
+    });
+  }
+
+  // Welcome modal events
   if (continueBtn) {
     continueBtn.addEventListener('click', hideWelcomeModal);
   }
-  // Allow closing with Escape key
-  const welcomeModal = document.getElementById('welcome-modal');
+  
   if (welcomeModal) {
     welcomeModal.addEventListener('keydown', e => {
       if (e.key === 'Escape') hideWelcomeModal();
     });
   }
-});
 
-// Profile dropdown session check on load
-document.addEventListener('DOMContentLoaded', async () => {
+  // Profile dropdown events
+  if (profileBtn && profileMenu) {
+    console.log('✅ Attaching Profile button event handler');
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      profileMenu.hidden = !profileMenu.hidden;
+      console.log('🔄 Profile menu toggled:', !profileMenu.hidden ? 'open' : 'closed');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) {
+        profileMenu.hidden = true;
+      }
+    });
+  }
+  
+  // Logout functionality
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('profileName');
+      localStorage.removeItem('profileEmail');
+      localStorage.removeItem('pendingEmail');
+      window.location.href = 'index.html';
+    });
+  }
+
+  // Copy to clipboard
+  if (copyOutputBtn) {
+    copyOutputBtn.addEventListener('click', () => {
+      const output = document.getElementById('output-box');
+      if (output) {
+        navigator.clipboard.writeText(output.textContent || '').then(() => {
+          copyOutputBtn.textContent = '✔ Copied!';
+          setTimeout(() => { copyOutputBtn.textContent = '📋 Copy'; }, 1200);
+        }).catch(err => {
+          console.error('Copy failed:', err);
+          copyOutputBtn.textContent = '❌ Error';
+          setTimeout(() => { copyOutputBtn.textContent = '📋 Copy'; }, 1200);
+        });
+      }
+    });
+  }
+
+  // Keyboard shortcut: Ctrl+Enter to run code
+  if (codeEditor) {
+    codeEditor.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (runBtn && !runBtn.disabled) runBtn.click();
+      }
+    });
+  }
+
+  // Action button handlers
+  if (runBtn) {
+    console.log('✅ Attaching Run button event handler');
+    runBtn.addEventListener('click', async () => {
+      console.log('🚀 Run button clicked');
+      
+      if (!window.location.pathname.includes('test.html') && !requireAuthOrRedirect()) return;
+      
+      setActionButtons(true);
+      setOutput("⏳ Running...");
+      
+      // In test mode, simulate code execution
+      if (window.location.pathname.includes('test.html')) {
+        setTimeout(() => {
+          setOutput("✅ Test output: Your code would run here!");
+          setActionButtons(false);
+        }, 1000);
+        return;
+      }
+      
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/ai/run`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ code: codeEditor.value })
+        });
+        const data = await res.json();
+        setOutput(data.output ?? data.message ?? "No output.");
+      } catch {
+        setOutput("❌ Unable to run code (server error)", true);
+      }
+      setActionButtons(false);
+    });
+  }
+
+  if (aiGenBtn) {
+    console.log('✅ Attaching Generate button event handler');
+    aiGenBtn.addEventListener('click', async () => {
+      if (!requireAuthOrRedirect()) return;
+      setActionButtons(true);
+      showModal("⏳ Generating code with AI...");
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/ai/generate`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ prompt: codeEditor.value })
+        });
+        const data = await res.json();
+        codeEditor.value = data.generated ?? "";
+        setOutput("✅ Code generated.");
+      } catch {
+        setOutput("❌ AI generation error", true);
+      }
+      hideModal();
+      setActionButtons(false);
+    });
+  }
+
+  if (aiExplainBtn) {
+    aiExplainBtn.addEventListener('click', async () => {
+      if (!requireAuthOrRedirect()) return;
+      setActionButtons(true);
+      showModal("⏳ Explaining code...");
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/ai/explain`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ code: codeEditor.value })
+        });
+        const data = await res.json();
+        setOutput(data.explanation ?? "No explanation available.");
+      } catch {
+        setOutput("❌ AI explanation error", true);
+      }
+      hideModal();
+      setActionButtons(false);
+    });
+  }
+
+  if (aiDebugBtn) {
+    aiDebugBtn.addEventListener('click', async () => {
+      if (!requireAuthOrRedirect()) return;
+      setActionButtons(true);
+      showModal("⏳ Debugging with AI...");
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/ai/debug`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ code: codeEditor.value })
+        });
+        const data = await res.json();
+        setOutput(data.debugged ?? data.message ?? "No debug result.");
+      } catch {
+        setOutput("❌ AI debugging error", true);
+      }
+      hideModal();
+      setActionButtons(false);
+    });
+  }
+}
+
+// Initialize profile information
+async function initializeProfile() {
   // Prevent multiple redirects
   if (window.authCheckInProgress) return;
   window.authCheckInProgress = true;
   
-  if (!requireAuthOrRedirect()) return;
+  console.log('👤 Initializing profile...');
+  
+  // Skip auth check if this is a test environment
+  if (window.location.pathname.includes('test.html')) {
+    console.log('🧪 Test mode detected, skipping auth check');
+  } else {
+    if (!requireAuthOrRedirect()) return;
+  }
   setOutput("");
   
   // Load profile information from localStorage
@@ -112,189 +348,50 @@ document.addEventListener('DOMContentLoaded', async () => {
     userInitialsEl.textContent = profileName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   }
   
-  // Setup profile menu toggle
-  const profileBtn = document.getElementById('profile-btn');
-  const profileMenu = document.getElementById('profile-menu');
-  
-  if (profileBtn && profileMenu) {
-    profileBtn.addEventListener('click', () => {
-      profileMenu.hidden = !profileMenu.hidden;
-    });
-    
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) {
-        profileMenu.hidden = true;
+  // Skip API validation in test mode
+  if (!window.location.pathname.includes('test.html')) {
+    try {
+      // Validate token by fetching profile
+      const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('profileName');
+        localStorage.removeItem('profileEmail');
+        window.location.href = 'index.html';
       }
-    });
-  }
-  
-  // Setup logout functionality
-  const logoutBtn = document.getElementById('logout-btn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('token');
-      localStorage.removeItem('profileName');
-      localStorage.removeItem('profileEmail');
-      localStorage.removeItem('pendingEmail');
-      window.location.href = 'index.html';
-    });
-  }
-  
-  try {
-    // Validate token by fetching profile
-    const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    if (!res.ok) {
+    } catch {
       localStorage.removeItem('token');
       localStorage.removeItem('profileName');
       localStorage.removeItem('profileEmail');
       window.location.href = 'index.html';
     }
-  } catch {
-    localStorage.removeItem('token');
-    localStorage.removeItem('profileName');
-    localStorage.removeItem('profileEmail');
-    window.location.href = 'index.html';
+  } else {
+    console.log('🧪 Skipping API validation in test mode');
   }
   
   // Reset the flag after a delay
   setTimeout(() => {
     window.authCheckInProgress = false;
   }, 1000);
+}
+
+// Main initialization function
+document.addEventListener('DOMContentLoaded', async () => {
+  console.log('🚀 Editor initializing...');
+  
+  // Initialize DOM elements
+  initializeElements();
+  
+  // Setup event handlers
+  setupEventHandlers();
+  
+  // Initialize profile
+  await initializeProfile();
+  
+  // Show welcome modal
+  showWelcomeModal();
+  
+  console.log('✅ Editor initialized successfully');
 });
-
-// --- Action Buttons ---
-const runBtn = document.getElementById('run-btn');
-const aiGenBtn = document.getElementById('ai-generate-btn');
-const aiExplainBtn = document.getElementById('ai-explain-btn');
-const aiDebugBtn = document.getElementById('ai-debug-btn');
-const codeEditor = document.getElementById('code-editor');
-const copyOutputBtn = document.getElementById('copy-output-btn');
-
-// Utility to disable/enable buttons as a group
-function setActionButtons(disabled) {
-  [runBtn, aiGenBtn, aiExplainBtn, aiDebugBtn].forEach(btn =>
-    btn && (btn.disabled = disabled)
-  );
-}
-
-// --- Copy to Clipboard Feature ---
-if (copyOutputBtn) {
-  copyOutputBtn.onclick = () => {
-    const output = document.getElementById('output-box');
-    if (output) {
-      navigator.clipboard.writeText(output.textContent || '').then(() => {
-        copyOutputBtn.textContent = '✔ Copied!';
-        setTimeout(() => { copyOutputBtn.textContent = '📋 Copy'; }, 1200);
-      }).catch(err => {
-        console.error('Copy failed:', err);
-        copyOutputBtn.textContent = '❌ Error';
-        setTimeout(() => { copyOutputBtn.textContent = '📋 Copy'; }, 1200);
-      });
-    }
-  };
-}
-
-// --- Keyboard Shortcut: Ctrl+Enter to Run Code ---
-if (codeEditor) {
-  codeEditor.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      e.preventDefault();
-      if (runBtn && !runBtn.disabled) runBtn.click();
-    }
-  });
-}
-
-// RUN CODE
-if (runBtn) runBtn.onclick = async () => {
-  if (!requireAuthOrRedirect()) return;
-  setActionButtons(true);
-  setOutput("⏳ Running...");
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/ai/run`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ code: codeEditor.value })
-    });
-    const data = await res.json();
-    setOutput(data.output ?? data.message ?? "No output.");
-  } catch {
-    setOutput("❌ Unable to run code (server error)", true);
-  }
-  setActionButtons(false);
-};
-
-// GENERATE CODE
-if (aiGenBtn) aiGenBtn.onclick = async () => {
-  if (!requireAuthOrRedirect()) return;
-  setActionButtons(true);
-  showModal("⏳ Generating code with AI...");
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/ai/generate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ prompt: codeEditor.value })
-    });
-    const data = await res.json();
-    codeEditor.value = data.generated ?? "";
-    setOutput("✅ Code generated.");
-  } catch {
-    setOutput("❌ AI generation error", true);
-  }
-  hideModal();
-  setActionButtons(false);
-};
-
-// EXPLAIN CODE
-if (aiExplainBtn) aiExplainBtn.onclick = async () => {
-  if (!requireAuthOrRedirect()) return;
-  setActionButtons(true);
-  showModal("⏳ Explaining code...");
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/ai/explain`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ code: codeEditor.value })
-    });
-    const data = await res.json();
-    setOutput(data.explanation ?? "No explanation available.");
-  } catch {
-    setOutput("❌ AI explanation error", true);
-  }
-  hideModal();
-  setActionButtons(false);
-};
-
-// DEBUG CODE
-if (aiDebugBtn) aiDebugBtn.onclick = async () => {
-  if (!requireAuthOrRedirect()) return;
-  setActionButtons(true);
-  showModal("⏳ Debugging with AI...");
-  try {
-    const res = await fetch(`${API_BASE_URL}/api/ai/debug`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify({ code: codeEditor.value })
-    });
-    const data = await res.json();
-    setOutput(data.debugged ?? data.message ?? "No debug result.");
-  } catch {
-    setOutput("❌ AI debugging error", true);
-  }
-  hideModal();
-  setActionButtons(false);
-};
