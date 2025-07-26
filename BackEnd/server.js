@@ -29,11 +29,21 @@ const aiRoutes = require('./routes/ai.routes.js');
 app.use('/api/auth', authRoutes);
 app.use('/api/ai', aiRoutes);
 
-// --- Static File Serving for Frontend ---
-const frontendPath = path.join(__dirname, '..', 'FrontEnd');
-app.use(express.static(frontendPath));
-app.get('*', (req, res) => {
-    res.sendFile(path.join(frontendPath, 'index.html'));
+// --- API Health Check ---
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'HiveMind API is running',
+        status: 'OK',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// --- 404 Handler for API Routes ---
+app.use('*', (req, res) => {
+    res.status(404).json({ 
+        error: 'API endpoint not found',
+        message: 'This is the HiveMind backend API. Please use the frontend at https://hive-mind-puce.vercel.app'
+    });
 });
 
 // --- Socket.IO Real-time Logic ---
