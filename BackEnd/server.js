@@ -17,9 +17,10 @@ const server = http.createServer(app);
 // --- Middleware ---
 // Use CORS to allow requests from your frontend
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Default to localhost if not set
+  origin: process.env.FRONTEND_URL || 'https://hive-mind-puce.vercel.app', // Default to localhost if not set
   credentials: true
 }));
+app.options('*', cors());
 app.use(express.json());
 
 // --- API Routes ---

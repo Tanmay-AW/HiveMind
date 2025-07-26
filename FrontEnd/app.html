@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" >
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>HiveMind – Collaborative Editor</title>
@@ -30,6 +30,7 @@
       </div>
     </div>
   </header>
+
   <main class="app-main">
     <section class="editor-section">
       <label for="code-editor" class="visually-hidden">Code editor</label>
@@ -43,7 +44,8 @@
       <pre id="output-box" class="output-box"></pre>
     </aside>
   </main>
-  
+
+  <!-- Modal -->
   <div id="modal" class="modal" role="dialog" hidden>
     <div class="glassmorphic-container" style="margin:0;">
       <p id="modal-message"></p>
@@ -51,16 +53,22 @@
     </div>
   </div>
 
+  <!-- Welcome Modal -->
   <div id="welcome-modal" class="modal" role="dialog" hidden>
     <div class="glassmorphic-container" style="margin:0; text-align:center;">
-        <h2 class="neon-glow-heading">Welcome to the Editor!</h2>
-        <p>This is your collaborative workspace. Invite others by sharing the URL. Use the AI buttons to supercharge your coding.</p>
-        <button id="continue-to-editor" class="cta">Start Coding</button>
+      <h2 class="neon-glow-heading">Welcome to the Editor!</h2>
+      <p>This is your collaborative workspace. Invite others by sharing the URL. Use the AI buttons to supercharge your coding.</p>
+      <button id="continue-to-editor" class="cta">Start Coding</button>
     </div>
   </div>
 
-  <script src="config.js"></script>
-  <script src="script.js"></script>
-  <script src="editor.js"></script>
+  <!-- ✅ CONFIG Inline + Scripts Deferred -->
+  <script>
+    window.CONFIG = {
+      BACKEND_URL: "https://hivemind-backend-9u2f.onrender.com"
+    };
+  </script>
+  <script src="script.js" defer></script>
+  <script src="editor.js" defer></script>
 </body>
 </html>
