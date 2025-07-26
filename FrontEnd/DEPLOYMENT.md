@@ -2,18 +2,18 @@
 
 ## Current Status
 - ✅ Frontend deployed on Vercel: `https://hive-mind-puce.vercel.app`
-- ⏳ Backend URL pending (will be updated when provided)
+- ✅ Backend deployed on Render: `https://hivemind-backend-9u2f.onrender.com`
 
 ## Integration Steps
 
-### 1. Update Backend URL
-When you have your backend deployed, update the `config.js` file:
+### 1. Backend URL Configuration
+The backend URL is already configured in `config.js`:
 
 ```javascript
 // In FrontEnd/config.js
 const CONFIG = {
     FRONTEND_URL: "https://hive-mind-puce.vercel.app",
-    BACKEND_URL: "https://your-backend-url.com", // ← Update this line
+    BACKEND_URL: "https://hivemind-backend-9u2f.onrender.com", // ✅ Configured
     // ... rest of config
 };
 ```
@@ -65,7 +65,7 @@ FrontEnd/
 4. Verify localStorage has correct tokens
 
 ## Next Steps
-1. Deploy backend and provide URL
-2. Update `config.js` with backend URL
+1. ✅ Backend deployed and configured
+2. ✅ Frontend configured with backend URL
 3. Test all features
 4. Configure custom domain if needed 

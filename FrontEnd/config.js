@@ -5,10 +5,8 @@ const CONFIG = {
     // Frontend URL (Vercel deployment)
     FRONTEND_URL: "https://hive-mind-puce.vercel.app",
     
-    // Backend URL - UPDATE THIS WHEN BACKEND IS DEPLOYED
-    // For local development: "http://localhost:3000"
-    // For production: "https://your-backend-url.com"
-    BACKEND_URL: "https://hive-mind-puce.vercel.app", // Temporary - will be updated with actual backend URL
+    // Backend URL (Render deployment)
+    BACKEND_URL: "https://hivemind-backend-9u2f.onrender.com",
     
     // API Endpoints
     API_ENDPOINTS: {
