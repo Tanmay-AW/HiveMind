@@ -16,7 +16,7 @@ MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret_key
 
 # Frontend URL (for CORS)
-FRONTEND_URL=https://hive-mind-puce.vercel.app
+FRONTEND_URL=https://hive-mind-ai.vercel.app
 
 # Email Service (Gmail)
 GMAIL_USER=your_gmail@gmail.com

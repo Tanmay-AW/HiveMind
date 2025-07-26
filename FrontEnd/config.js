@@ -5,7 +5,7 @@ const isLocalhost = window.location.hostname === "localhost" || window.location.
 const CONFIG = {
     FRONTEND_URL: isLocalhost
         ? "http://localhost:8080"
-        : "https://hive-mind-puce.vercel.app",
+        : "https://hive-mind-ai.vercel.app",
 
     BACKEND_URL: isLocalhost
         ? "http://localhost:3000" // ✅ CORRECT PORT NOW

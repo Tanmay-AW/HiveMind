@@ -25,7 +25,7 @@ This guide will help you deploy your HiveMind application with the frontend on V
    PORT=10000
    MONGO_URI=mongodb+srv://your-username:your-password@cluster.mongodb.net/hivemind
    JWT_SECRET=your-super-secret-jwt-key-here
-   FRONTEND_URL=https://hive-mind-puce.vercel.app
+   FRONTEND_URL=https://hive-mind-ai.vercel.app
    GMAIL_USER=your-email@gmail.com
    GMAIL_APP_PASSWORD=your-gmail-app-password
    OPENAI_API_KEY=sk-your-openai-api-key
@@ -81,14 +81,14 @@ vercel --prod
 
 After both deployments, you'll get URLs like:
 - **Backend**: `https://hivemind-backend-xyz.onrender.com`
-- **Frontend**: `https://hive-mind-puce.vercel.app`
+- **Frontend**: `https://hive-mind-ai.vercel.app`
 
 #### Update Backend CORS (if needed)
 Update `BackEnd/server.js` if your Vercel URL is different:
 ```javascript
 const allowedOrigins = [
   'https://your-actual-vercel-url.vercel.app', // Your actual Vercel URL
-  'https://hive-mind-puce.vercel.app',
+  'https://hive-mind-ai.vercel.app',
   // ... other origins
 ];
 ```

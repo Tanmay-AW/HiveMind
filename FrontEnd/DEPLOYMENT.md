@@ -1,7 +1,7 @@
 # HiveMind Frontend Deployment Guide
 
 ## Current Status
-- ✅ Frontend deployed on Vercel: `https://hive-mind-puce.vercel.app`
+- ✅ Frontend deployed on Vercel: `https://hive-mind-ai.vercel.app`
 - ✅ Backend deployed on Render: `https://hivemind-backend-9u2f.onrender.com`
 
 ## Integration Steps
@@ -12,7 +12,7 @@ The backend URL is already configured in `config.js`:
 ```javascript
 // In FrontEnd/config.js
 const CONFIG = {
-    FRONTEND_URL: "https://hive-mind-puce.vercel.app",
+    FRONTEND_URL: "https://hive-mind-ai.vercel.app",
     BACKEND_URL: "https://hivemind-backend-9u2f.onrender.com", // ✅ Configured
     // ... rest of config
 };
@@ -21,7 +21,7 @@ const CONFIG = {
 ### 2. CORS Configuration
 Ensure your backend has CORS configured to allow requests from:
 ```
-https://hive-mind-puce.vercel.app
+https://hive-mind-ai.vercel.app
 ```
 
 ### 3. Environment Variables
@@ -32,7 +32,7 @@ Make sure your backend has all necessary environment variables:
 - AI service API keys
 
 ### 4. Test the Integration
-1. Visit `https://hive-mind-puce.vercel.app`
+1. Visit `https://hive-mind-ai.vercel.app`
 2. Try to sign up/login
 3. Test the AI features in the editor
 4. Verify real-time collaboration works

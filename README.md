@@ -4,7 +4,7 @@ A real-time collaborative coding platform with integrated AI assistance, built w
 
 ## 🚀 Live Demo
 
-- **Frontend**: [https://hive-mind-puce.vercel.app](https://hive-mind-puce.vercel.app)
+- **Frontend**: [https://hive-mind-ai.vercel.app](https://hive-mind-ai.vercel.app)
 - **Backend**: [https://hivemind-backend-9u2f.onrender.com](https://hivemind-backend-9u2f.onrender.com)
 
 ## ✨ Features
@@ -145,7 +145,7 @@ OPENAI_API_KEY=your_openai_api_key
 ## 🔧 Deployment
 
 ### Frontend (Vercel)
-- ✅ Already deployed at `https://hive-mind-puce.vercel.app`
+- ✅ Already deployed at `https://hive-mind-ai.vercel.app`
 - See `FrontEnd/DEPLOYMENT.md` for details
 
 ### Backend

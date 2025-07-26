@@ -16,7 +16,8 @@ const server = http.createServer(app);
 
 // --- Middleware ---
 const allowedOrigins = [
-  'https://hive-mind-puce.vercel.app', // Vercel frontend URL
+  'https://hive-mind-ai.vercel.app', // New Vercel frontend URL
+  'https://hive-mind-puce.vercel.app', // Previous Vercel frontend URL
   'https://hivemind-tanmay.vercel.app', // Alternative Vercel URL
   'http://localhost:3000', // Local development
   'http://localhost:8080', // Local development

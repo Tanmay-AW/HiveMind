@@ -16,7 +16,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: FRONTEND_URL
-        value: https://hive-mind-puce.vercel.app
+        value: https://hive-mind-ai.vercel.app
       - key: GMAIL_USER
         generateValue: true
       - key: GMAIL_APP_PASSWORD
