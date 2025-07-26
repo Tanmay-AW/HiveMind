@@ -33,6 +33,22 @@
 
   <main class="app-main">
     <section class="editor-section">
+      <!-- Language selector and AI prompt input -->
+      <div class="editor-controls">
+        <div class="language-selector">
+          <label for="language-select">Language:</label>
+          <select id="language-select">
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+          </select>
+        </div>
+        <div class="ai-prompt-container" id="ai-prompt-container" style="display: none;">
+          <label for="ai-prompt-input">AI Prompt:</label>
+          <input type="text" id="ai-prompt-input" placeholder="Describe what code you want to generate..." />
+          <button id="ai-prompt-submit" class="btn-small">Generate</button>
+          <button id="ai-prompt-cancel" class="btn-small">Cancel</button>
+        </div>
+      </div>
       <label for="code-editor" class="visually-hidden">Code editor</label>
       <textarea id="code-editor" spellcheck="false" placeholder="// Write or paste your code here..."></textarea>
     </section>

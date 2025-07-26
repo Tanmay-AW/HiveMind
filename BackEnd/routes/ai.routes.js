@@ -46,4 +46,29 @@ router.post('/complete', async (req, res) => {
     }
 });
 
+// Code execution endpoint - simulates running code
+router.post('/run', async (req, res) => {
+    try {
+        const { code, language = 'javascript' } = req.body;
+        
+        if (!code || code.trim() === '') {
+            return res.json({ success: false, output: 'No code to run' });
+        }
+        
+        // Simple code execution simulation
+        let output;
+        if (language.toLowerCase() === 'javascript') {
+            output = `✅ JavaScript code executed successfully!\n\nCode:\n${code}\n\n⚠️ Note: This is a simulation. In a real environment, your code would be executed safely.`;
+        } else if (language.toLowerCase() === 'python') {
+            output = `✅ Python code executed successfully!\n\nCode:\n${code}\n\n⚠️ Note: This is a simulation. In a real environment, your code would be executed safely.`;
+        } else {
+            output = `✅ ${language} code processed!\n\nCode:\n${code}\n\n⚠️ Note: This is a simulation. In a real environment, your code would be executed safely.`;
+        }
+        
+        res.json({ success: true, output });
+    } catch (error) {
+        res.status(500).json({ success: false, output: 'Code execution failed: ' + error.message });
+    }
+});
+
 module.exports = router;
