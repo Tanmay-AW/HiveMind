@@ -10,7 +10,13 @@ router.post('/generate', async (req, res) => {
     try {
         const { description, language } = req.body;
         const result = await AIService.generateBoilerplate(description, language);
-        res.json(result);
+        
+        // Ensure frontend compatibility - map 'code' to 'generated'
+        if (result.success && result.code) {
+            res.json({ success: true, generated: result.code });
+        } else {
+            res.json(result);
+        }
     } catch (error) {
         res.status(500).json({ success: false, error: 'Failed to generate code' });
     }

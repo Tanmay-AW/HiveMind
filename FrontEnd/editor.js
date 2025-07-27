@@ -28,6 +28,8 @@ console.log('🔑 Token status:', token ? 'Present' : 'Missing');
 let codeEditor; // CodeMirror instance
 let currentRoom = null;
 let socket = null;
+let collaborators = new Set();
+let currentUser = null;
 
 // DOM elements
 let runBtn, aiGenBtn, aiExplainBtn, aiDebugBtn, copyOutputBtn;
@@ -35,6 +37,7 @@ let profileBtn, profileMenu, logoutBtn;
 let modal, modalMsg, modalCloseBtn;
 let roomModal, roomIdInput, joinRoomBtn, createRoomBtn;
 let languageSelect, aiPromptContainer, aiPromptInput, aiPromptSubmit, aiPromptCancel;
+let roomInfo, roomIdDisplay, copyRoomBtn, collaboratorsList, collaboratorsCount;
 
 // Utility Functions
 function requireAuthOrRedirect() {
@@ -109,9 +112,12 @@ function joinRoom(roomId) {
   // Hide room modal
   if (roomModal) roomModal.setAttribute('hidden', '');
   
+  // Show room info
+  displayRoomInfo(roomId);
+  
   console.log(`🏠 Joined room: ${roomId}`);
   
-  // Initialize WebSocket connection for room (if needed)
+  // Initialize WebSocket connection for room
   initializeRoomConnection(roomId);
 }
 
@@ -137,11 +143,91 @@ function hideRoomModal() {
   }
 }
 
-// WebSocket/Room Connection (placeholder for now)
+// Room UI Functions
+function displayRoomInfo(roomId) {
+  if (roomInfo && roomIdDisplay) {
+    roomIdDisplay.textContent = `Room: ${roomId}`;
+    roomInfo.style.display = 'flex';
+  }
+}
+
+function copyRoomURL() {
+  const roomURL = `${window.location.origin}${window.location.pathname}?room=${currentRoom}`;
+  navigator.clipboard.writeText(roomURL).then(() => {
+    if (copyRoomBtn) {
+      const originalText = copyRoomBtn.textContent;
+      copyRoomBtn.textContent = '✅ Copied!';
+      copyRoomBtn.style.background = 'rgba(0, 255, 127, 0.3)';
+      setTimeout(() => {
+        copyRoomBtn.textContent = originalText;
+        copyRoomBtn.style.background = '';
+      }, 2000);
+    }
+  }).catch(err => {
+    console.error('Failed to copy room URL:', err);
+    showModal('Failed to copy room URL');
+  });
+}
+
+function updateCollaboratorsList() {
+  if (collaboratorsCount) {
+    collaboratorsCount.textContent = collaborators.size;
+  }
+}
+
+// WebSocket/Room Connection
 function initializeRoomConnection(roomId) {
-  // This would initialize WebSocket connection for real-time collaboration
-  console.log(`🔌 Initializing connection for room: ${roomId}`);
-  // TODO: Implement actual WebSocket connection
+  console.log(`🔌 Initializing Socket.IO connection for room: ${roomId}`);
+  
+  try {
+    // Initialize Socket.IO connection
+    socket = io(API_BASE_URL, {
+      auth: {
+        token: token,
+        room: roomId,
+        user: currentUser || localStorage.getItem('profileName') || 'Anonymous'
+      }
+    });
+
+    socket.on('connect', () => {
+      console.log('✅ Connected to Socket.IO server');
+      socket.emit('join-room', { 
+        roomId: roomId,
+        user: currentUser || localStorage.getItem('profileName') || 'Anonymous'
+      });
+    });
+
+    socket.on('user-joined', (data) => {
+      console.log(`👤 User joined: ${data.user}`);
+      collaborators.add(data.user);
+      updateCollaboratorsList();
+    });
+
+    socket.on('user-left', (data) => {
+      console.log(`👋 User left: ${data.user}`);
+      collaborators.delete(data.user);
+      updateCollaboratorsList();
+    });
+
+    socket.on('room-users', (users) => {
+      console.log('👥 Room users updated:', users);
+      collaborators.clear();
+      users.forEach(user => collaborators.add(user));
+      updateCollaboratorsList();
+    });
+
+    socket.on('disconnect', () => {
+      console.log('🔌 Disconnected from Socket.IO server');
+    });
+
+    socket.on('error', (error) => {
+      console.error('❌ Socket.IO error:', error);
+    });
+
+  } catch (error) {
+    console.error('❌ Failed to initialize Socket.IO:', error);
+    // Continue without real-time features
+  }
 }
 
 // CodeMirror Initialization
@@ -237,6 +323,13 @@ function initializeElements() {
   roomIdInput = document.getElementById('room-id-input');
   joinRoomBtn = document.getElementById('join-room-btn');
   createRoomBtn = document.getElementById('create-room-btn');
+  
+  // Room info elements
+  roomInfo = document.getElementById('room-info');
+  roomIdDisplay = document.getElementById('room-id-display');
+  copyRoomBtn = document.getElementById('copy-room-btn');
+  collaboratorsList = document.getElementById('collaborators-list');
+  collaboratorsCount = document.getElementById('collaborators-count');
   
   // Language and AI elements
   languageSelect = document.getElementById('language-select');
@@ -516,6 +609,11 @@ function setupEventHandlers() {
   if (aiPromptCancel) {
     aiPromptCancel.addEventListener('click', hideAIPromptInput);
   }
+
+  // Copy room URL handler
+  if (copyRoomBtn) {
+    copyRoomBtn.addEventListener('click', copyRoomURL);
+  }
   
   console.log('✅ Event handlers set up');
 }
@@ -548,6 +646,7 @@ async function initializeProfile() {
   // Load profile information from localStorage
   const profileName = localStorage.getItem('profileName');
   const profileEmail = localStorage.getItem('profileEmail');
+  currentUser = profileName || 'Anonymous';
   
   // Update profile display
   const profileNameEl = document.getElementById('profile-name');

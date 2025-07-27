@@ -644,3 +644,68 @@ body, html {
   width: 1px;
   white-space: nowrap;
 }
+
+/* Room Info Section */
+.room-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.75rem 1rem;
+  background: rgba(24, 25, 28, 0.8);
+  border-radius: 12px;
+  border: 1px solid rgba(30, 144, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.room-id {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--color-accent);
+  font-weight: 600;
+  background: rgba(30, 144, 255, 0.1);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(30, 144, 255, 0.3);
+}
+
+.collaborators {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.collaborators-label {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+#collaborators-count {
+  background: var(--color-accent);
+  color: #000;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+#copy-room-btn {
+  background: rgba(0, 191, 255, 0.2);
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#copy-room-btn:hover,
+#copy-room-btn:focus {
+  background: rgba(0, 191, 255, 0.3);
+  box-shadow: 0 0 8px rgba(0, 191, 255, 0.4);
+  transform: translateY(-1px);
+}

@@ -20,6 +20,14 @@
       <button id="ai-explain-btn" type="button" class="btn-small cta">Explain</button>
       <button id="ai-debug-btn" type="button" class="btn-small cta">Debug</button>
     </nav>
+    <div class="room-info" id="room-info" style="display: none;">
+      <span id="room-id-display" class="room-id">Room: HM-XXXXXX</span>
+      <button id="copy-room-btn" type="button" class="btn-small">📋 Copy Room URL</button>
+      <div class="collaborators" id="collaborators-list">
+        <span class="collaborators-label">👥 Collaborators:</span>
+        <span id="collaborators-count">0</span>
+      </div>
+    </div>
     <div class="profile-wrapper">
       <button id="profile-btn" class="profile-btn" aria-label="Open user profile menu">
         <span id="user-initials">U</span>
@@ -94,7 +102,7 @@
     </div>
   </div>
 
-  <!-- Scripts - Load config first, then CodeMirror, then editor -->
+  <!-- Scripts - Load config first, then CodeMirror, Socket.IO, then editor -->
   <script src="config.js"></script>
   <!-- CodeMirror JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
@@ -104,6 +112,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/brace-fold.min.js"></script>
+  <!-- Socket.IO for real-time collaboration -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
   <script src="editor.js"></script>
 </body>
 </html>
