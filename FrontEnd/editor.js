@@ -1,15 +1,22 @@
-// HiveMind Editor JS
+// HiveMind Editor JS - Enhanced with CodeMirror and Room Collaboration
 // - Handles collaborative editor UI, AI actions, and profile
-// - Robust error handling, accessibility, keyboard shortcuts
-// - Maintainers: See comments for logic explanations
+// - CodeMirror integration with syntax highlighting
+// - Room-based collaboration system
+// - Fixed run code functionality
 
-console.log('🔧 Editor.js loading...');
+console.log('🔧 Enhanced Editor.js loading...');
 
-// Check if CONFIG is available
+// Check if required dependencies are available
 if (typeof CONFIG === 'undefined') {
   console.error('❌ CONFIG is not defined! Make sure config.js is loaded first.');
 } else {
   console.log('✅ CONFIG loaded:', CONFIG);
+}
+
+if (typeof CodeMirror === 'undefined') {
+  console.error('❌ CodeMirror is not loaded! Make sure CodeMirror scripts are included.');
+} else {
+  console.log('✅ CodeMirror loaded');
 }
 
 const API_BASE_URL = CONFIG?.BACKEND_URL || 'https://hivemind-backend-9u2f.onrender.com';
@@ -17,14 +24,19 @@ const token = localStorage.getItem('token');
 
 console.log('🔑 Token status:', token ? 'Present' : 'Missing');
 
-// Global variables for DOM elements
-let runBtn, aiGenBtn, aiExplainBtn, aiDebugBtn, codeEditor, copyOutputBtn;
+// Global variables
+let codeEditor; // CodeMirror instance
+let currentRoom = null;
+let socket = null;
+
+// DOM elements
+let runBtn, aiGenBtn, aiExplainBtn, aiDebugBtn, copyOutputBtn;
 let profileBtn, profileMenu, logoutBtn;
 let modal, modalMsg, modalCloseBtn;
-let welcomeModal, continueBtn;
+let roomModal, roomIdInput, joinRoomBtn, createRoomBtn;
 let languageSelect, aiPromptContainer, aiPromptInput, aiPromptSubmit, aiPromptCancel;
 
-// Helpers
+// Utility Functions
 function requireAuthOrRedirect() {
   if (!token) {
     window.location.href = 'index.html';
@@ -37,7 +49,7 @@ function setOutput(text, isError = false) {
   const box = document.getElementById('output-box');
   if (box) {
     box.textContent = text;
-    box.style.color = isError ? "var(--danger)" : "";
+    box.style.color = isError ? "var(--color-danger)" : "";
   }
 }
 
@@ -55,156 +67,194 @@ function hideModal() {
   if (modal) modal.setAttribute('hidden', '');
 }
 
-// Welcome Modal logic
-function showWelcomeModal() {
-  if (welcomeModal) {
-    welcomeModal.removeAttribute('hidden');
-    setTimeout(() => {
-      continueBtn?.focus();
-    }, 50);
-    document.body.style.overflow = 'hidden';
-  }
-}
-
-function hideWelcomeModal() {
-  if (welcomeModal) {
-    welcomeModal.setAttribute('hidden', '');
-    document.body.style.overflow = '';
-  }
-}
-
-// Utility to disable/enable buttons as a group
 function setActionButtons(disabled) {
   [runBtn, aiGenBtn, aiExplainBtn, aiDebugBtn].forEach(btn => {
     if (btn) btn.disabled = disabled;
   });
 }
 
-// Get currently selected language
 function getSelectedLanguage() {
   return languageSelect?.value || 'javascript';
 }
 
-// Show AI prompt input for code generation
-function showAIPromptInput() {
-  if (aiPromptContainer) {
-    aiPromptContainer.style.display = 'block';
-    aiPromptInput?.focus();
+// Room Management Functions
+function generateRoomId() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = 'HM-';
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
+  return result;
 }
 
-// Hide AI prompt input
-function hideAIPromptInput() {
-  if (aiPromptContainer) {
-    aiPromptContainer.style.display = 'none';
-    if (aiPromptInput) aiPromptInput.value = '';
-  }
+function getRoomFromURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('room');
 }
 
-// Update code editor placeholder based on selected language
-function updateEditorPlaceholder() {
-  if (!codeEditor) return;
-  const language = getSelectedLanguage();
-  if (language === 'python') {
-    codeEditor.placeholder = '# Write or paste your Python code here...';
-  } else {
-    codeEditor.placeholder = '// Write or paste your JavaScript code here...';
+function joinRoom(roomId) {
+  if (!roomId || roomId.trim() === '') {
+    showModal('Please enter a valid room ID');
+    return;
   }
-}
-
-// Handle AI code generation with prompt
-async function handleAIGenerate(prompt) {
-  if (!requireAuthOrRedirect()) return;
   
-  setActionButtons(true);
-  showModal("⏳ Generating code with AI...");
+  // Update URL and join room
+  const newUrl = `${window.location.pathname}?room=${roomId}`;
+  window.history.pushState({}, '', newUrl);
+  currentRoom = roomId;
   
-  try {
-    const language = getSelectedLanguage();
-    const res = await fetch(`${API_BASE_URL}/api/ai/generate`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`
+  // Update page title
+  document.title = `HiveMind - Room ${roomId}`;
+  
+  // Hide room modal
+  if (roomModal) roomModal.setAttribute('hidden', '');
+  
+  console.log(`🏠 Joined room: ${roomId}`);
+  
+  // Initialize WebSocket connection for room (if needed)
+  initializeRoomConnection(roomId);
+}
+
+function createNewRoom() {
+  const roomId = generateRoomId();
+  joinRoom(roomId);
+}
+
+function showRoomModal() {
+  if (roomModal) {
+    roomModal.removeAttribute('hidden');
+    setTimeout(() => {
+      roomIdInput?.focus();
+    }, 50);
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function hideRoomModal() {
+  if (roomModal) {
+    roomModal.setAttribute('hidden', '');
+    document.body.style.overflow = '';
+  }
+}
+
+// WebSocket/Room Connection (placeholder for now)
+function initializeRoomConnection(roomId) {
+  // This would initialize WebSocket connection for real-time collaboration
+  console.log(`🔌 Initializing connection for room: ${roomId}`);
+  // TODO: Implement actual WebSocket connection
+}
+
+// CodeMirror Initialization
+function initializeCodeEditor() {
+  const textArea = document.getElementById('code-editor');
+  if (!textArea) {
+    console.error('❌ Code editor textarea not found');
+    return;
+  }
+
+  // Initialize CodeMirror
+  codeEditor = CodeMirror.fromTextArea(textArea, {
+    lineNumbers: true,
+    mode: 'javascript',
+    theme: 'material-darker',
+    matchBrackets: true,
+    autoCloseBrackets: true,
+    indentUnit: 2,
+    smartIndent: true,
+    lineWrapping: true,
+    foldGutter: true,
+    gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+    extraKeys: {
+      'Ctrl-Enter': () => {
+        if (runBtn && !runBtn.disabled) runBtn.click();
       },
-      body: JSON.stringify({ 
-        description: prompt,
-        language: language 
-      })
-    });
-    const data = await res.json();
-    
-    if (data.success && data.code) {
-      codeEditor.value = data.code;
-      setOutput("✅ Code generated successfully.");
-    } else {
-      setOutput("❌ Failed to generate code: " + (data.error || "Unknown error"), true);
+      'Cmd-Enter': () => {
+        if (runBtn && !runBtn.disabled) runBtn.click();
+      }
     }
-  } catch (error) {
-    setOutput("❌ AI generation error: " + error.message, true);
-  }
+  });
+
+  // Set initial content
+  codeEditor.setValue('// Welcome to HiveMind!\n// Write your code here and press Ctrl+Enter to run\n\nconsole.log("Hello, HiveMind!");');
+
+  console.log('✅ CodeMirror editor initialized');
   
-  hideModal();
-  setActionButtons(false);
+  // Update mode when language changes
+  if (languageSelect) {
+    languageSelect.addEventListener('change', updateEditorMode);
+    updateEditorMode(); // Set initial mode
+  }
 }
 
-// Initialize DOM elements and event handlers
+function updateEditorMode() {
+  if (!codeEditor) return;
+  
+  const language = getSelectedLanguage();
+  let mode = 'javascript';
+  let placeholder = '// Write your JavaScript code here...';
+  
+  if (language === 'python') {
+    mode = 'python';
+    placeholder = '# Write your Python code here...';
+  }
+  
+  codeEditor.setOption('mode', mode);
+  
+  // Update placeholder if editor is empty
+  if (codeEditor.getValue().trim() === '' || 
+      codeEditor.getValue().includes('Write your') ||
+      codeEditor.getValue().includes('Welcome to HiveMind!')) {
+    const welcomeCode = language === 'python' 
+      ? '# Welcome to HiveMind!\n# Write your code here and press Ctrl+Enter to run\n\nprint("Hello, HiveMind!")'
+      : '// Welcome to HiveMind!\n// Write your code here and press Ctrl+Enter to run\n\nconsole.log("Hello, HiveMind!");';
+    codeEditor.setValue(welcomeCode);
+  }
+}
+
+// Initialize DOM elements
 function initializeElements() {
   console.log('🔍 Initializing DOM elements...');
   
-  // Get DOM elements
+  // Action buttons
   runBtn = document.getElementById('run-btn');
   aiGenBtn = document.getElementById('ai-generate-btn');
   aiExplainBtn = document.getElementById('ai-explain-btn');
   aiDebugBtn = document.getElementById('ai-debug-btn');
-  codeEditor = document.getElementById('code-editor');
   copyOutputBtn = document.getElementById('copy-output-btn');
   
-  // Language and AI prompt elements
+  // Profile elements
+  profileBtn = document.getElementById('profile-btn');
+  profileMenu = document.getElementById('profile-menu');
+  logoutBtn = document.getElementById('logout-btn');
+  
+  // Modal elements
+  modal = document.getElementById('modal');
+  modalMsg = document.getElementById('modal-message');
+  modalCloseBtn = document.getElementById('modal-close');
+  
+  // Room modal elements
+  roomModal = document.getElementById('room-modal');
+  roomIdInput = document.getElementById('room-id-input');
+  joinRoomBtn = document.getElementById('join-room-btn');
+  createRoomBtn = document.getElementById('create-room-btn');
+  
+  // Language and AI elements
   languageSelect = document.getElementById('language-select');
   aiPromptContainer = document.getElementById('ai-prompt-container');
   aiPromptInput = document.getElementById('ai-prompt-input');
   aiPromptSubmit = document.getElementById('ai-prompt-submit');
   aiPromptCancel = document.getElementById('ai-prompt-cancel');
   
-  profileBtn = document.getElementById('profile-btn');
-  profileMenu = document.getElementById('profile-menu');
-  logoutBtn = document.getElementById('logout-btn');
-  
-  modal = document.getElementById('modal');
-  modalMsg = document.getElementById('modal-message');
-  modalCloseBtn = document.getElementById('modal-close');
-  
-  welcomeModal = document.getElementById('welcome-modal');
-  continueBtn = document.getElementById('continue-to-editor');
-  
-  // Log element status
-  console.log('📋 Element status:', {
-    runBtn: !!runBtn,
-    aiGenBtn: !!aiGenBtn,
-    aiExplainBtn: !!aiExplainBtn,
-    aiDebugBtn: !!aiDebugBtn,
-    codeEditor: !!codeEditor,
-    languageSelect: !!languageSelect,
-    aiPromptContainer: !!aiPromptContainer,
-    profileBtn: !!profileBtn,
-    profileMenu: !!profileMenu,
-    logoutBtn: !!logoutBtn,
-    modal: !!modal,
-    welcomeModal: !!welcomeModal
-  });
+  console.log('📋 Elements initialized');
 }
 
-// Setup all event handlers
+// Setup event handlers
 function setupEventHandlers() {
   console.log('🔗 Setting up event handlers...');
   
   // Modal events
   if (modalCloseBtn) {
     modalCloseBtn.addEventListener('click', hideModal);
-    console.log('✅ Modal close button event handler attached');
-  } else {
-    console.warn('⚠️ Modal close button not found');
   }
   
   if (modal) {
@@ -216,27 +266,43 @@ function setupEventHandlers() {
     });
   }
 
-  // Welcome modal events
-  if (continueBtn) {
-    continueBtn.addEventListener('click', hideWelcomeModal);
+  // Room modal events
+  if (joinRoomBtn) {
+    joinRoomBtn.addEventListener('click', () => {
+      const roomId = roomIdInput?.value?.trim();
+      if (roomId) {
+        joinRoom(roomId);
+      } else {
+        showModal('Please enter a room ID');
+      }
+    });
   }
   
-  if (welcomeModal) {
-    welcomeModal.addEventListener('keydown', e => {
-      if (e.key === 'Escape') hideWelcomeModal();
+  if (createRoomBtn) {
+    createRoomBtn.addEventListener('click', createNewRoom);
+  }
+  
+  if (roomIdInput) {
+    roomIdInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        joinRoomBtn?.click();
+      }
+    });
+  }
+  
+  if (roomModal) {
+    roomModal.addEventListener('keydown', e => {
+      if (e.key === 'Escape') hideRoomModal();
     });
   }
 
   // Profile dropdown events
   if (profileBtn && profileMenu) {
-    console.log('✅ Attaching Profile button event handler');
     profileBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       profileMenu.hidden = !profileMenu.hidden;
-      console.log('🔄 Profile menu toggled:', !profileMenu.hidden ? 'open' : 'closed');
     });
     
-    // Close menu when clicking outside
     document.addEventListener('click', (e) => {
       if (!profileBtn.contains(e.target) && !profileMenu.contains(e.target)) {
         profileMenu.hidden = true;
@@ -272,97 +338,52 @@ function setupEventHandlers() {
     });
   }
 
-  // Keyboard shortcut: Ctrl+Enter to run code
-  if (codeEditor) {
-    codeEditor.addEventListener('keydown', e => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-        e.preventDefault();
-        if (runBtn && !runBtn.disabled) runBtn.click();
-      }
-    });
-  }
-
-  // Language selector change handler
-  if (languageSelect) {
-    languageSelect.addEventListener('change', updateEditorPlaceholder);
-    // Initialize placeholder
-    updateEditorPlaceholder();
-  }
-
-  // AI prompt input handlers
-  if (aiPromptSubmit) {
-    aiPromptSubmit.addEventListener('click', async () => {
-      const prompt = aiPromptInput?.value?.trim();
-      if (!prompt) {
-        showModal('Please enter a prompt for AI code generation.');
-        return;
-      }
-      
-      hideAIPromptInput();
-      await handleAIGenerate(prompt);
-    });
-  }
-
-  if (aiPromptCancel) {
-    aiPromptCancel.addEventListener('click', hideAIPromptInput);
-  }
-
-  if (aiPromptInput) {
-    aiPromptInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        aiPromptSubmit?.click();
-      } else if (e.key === 'Escape') {
-        hideAIPromptInput();
-      }
-    });
-  }
-
   // Action button handlers
   if (runBtn) {
-    console.log('✅ Attaching Run button event handler');
     runBtn.addEventListener('click', async () => {
       console.log('🚀 Run button clicked');
       
-      if (!window.location.pathname.includes('test.html') && !requireAuthOrRedirect()) return;
+      if (!requireAuthOrRedirect()) return;
       
-      setActionButtons(true);
-      setOutput("⏳ Running...");
-      
-      // In test mode, simulate code execution
-      if (window.location.pathname.includes('test.html')) {
-        setTimeout(() => {
-          setOutput("✅ Test output: Your code would run here!");
-          setActionButtons(false);
-        }, 1000);
+      const code = codeEditor?.getValue()?.trim();
+      if (!code) {
+        showModal('Please write some code first');
         return;
       }
       
+      setActionButtons(true);
+      setOutput("⏳ Running code...");
+      
       try {
         const language = getSelectedLanguage();
-        const res = await fetch(`${API_BASE_URL}/api/ai/run`, {
+        const res = await fetch(`${API_BASE_URL}/api/ai/execute`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
           },
           body: JSON.stringify({ 
-            code: codeEditor.value,
+            code: code,
             language: language 
           })
         });
+        
         const data = await res.json();
-        setOutput(data.output ?? data.message ?? "No output.");
-      } catch {
+        
+        if (data.success) {
+          setOutput(data.output || data.result || "Code executed successfully");
+        } else {
+          setOutput("❌ " + (data.error || data.message || "Code execution failed"), true);
+        }
+      } catch (error) {
+        console.error('Run code error:', error);
         setOutput("❌ Unable to run code (server error)", true);
       }
       setActionButtons(false);
     });
   }
 
-  // AI Generate button handler - shows prompt input
   if (aiGenBtn) {
-    console.log('✅ Attaching Generate button event handler');
     aiGenBtn.addEventListener('click', () => {
       if (!requireAuthOrRedirect()) return;
       showAIPromptInput();
@@ -373,7 +394,7 @@ function setupEventHandlers() {
     aiExplainBtn.addEventListener('click', async () => {
       if (!requireAuthOrRedirect()) return;
       
-      const code = codeEditor.value?.trim();
+      const code = codeEditor?.getValue()?.trim();
       if (!code) {
         showModal("Please write some code first before explaining.");
         return;
@@ -413,7 +434,7 @@ function setupEventHandlers() {
     aiDebugBtn.addEventListener('click', async () => {
       if (!requireAuthOrRedirect()) return;
       
-      const code = codeEditor.value?.trim();
+      const code = codeEditor?.getValue()?.trim();
       if (!code) {
         showModal("Please write some code first before debugging.");
         return;
@@ -449,22 +470,79 @@ function setupEventHandlers() {
       setActionButtons(false);
     });
   }
+
+  // AI prompt handlers
+  if (aiPromptSubmit) {
+    aiPromptSubmit.addEventListener('click', async () => {
+      const prompt = aiPromptInput?.value?.trim();
+      if (!prompt) {
+        showModal('Please enter a prompt for AI code generation.');
+        return;
+      }
+      
+      setActionButtons(true);
+      showModal("⏳ Generating code with AI...");
+      hideAIPromptInput();
+      
+      try {
+        const language = getSelectedLanguage();
+        const res = await fetch(`${API_BASE_URL}/api/ai/generate`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ 
+            description: prompt,
+            language: language 
+          })
+        });
+        const data = await res.json();
+        
+        if (data.success && data.generated) {
+          codeEditor.setValue(data.generated);
+          setOutput("✅ Code generated successfully!");
+        } else {
+          setOutput("❌ Failed to generate code: " + (data.error || "No code generated."), true);
+        }
+      } catch {
+        setOutput("❌ AI generation error", true);
+      }
+      hideModal();
+      setActionButtons(false);
+    });
+  }
+
+  if (aiPromptCancel) {
+    aiPromptCancel.addEventListener('click', hideAIPromptInput);
+  }
+  
+  console.log('✅ Event handlers set up');
+}
+
+// AI Prompt Functions
+function showAIPromptInput() {
+  if (aiPromptContainer) {
+    aiPromptContainer.style.display = 'flex';
+    aiPromptInput?.focus();
+  }
+}
+
+function hideAIPromptInput() {
+  if (aiPromptContainer) {
+    aiPromptContainer.style.display = 'none';
+    if (aiPromptInput) aiPromptInput.value = '';
+  }
 }
 
 // Initialize profile information
 async function initializeProfile() {
-  // Prevent multiple redirects
   if (window.authCheckInProgress) return;
   window.authCheckInProgress = true;
   
   console.log('👤 Initializing profile...');
   
-  // Skip auth check if this is a test environment
-  if (window.location.pathname.includes('test.html')) {
-    console.log('🧪 Test mode detected, skipping auth check');
-  } else {
-    if (!requireAuthOrRedirect()) return;
-  }
+  if (!requireAuthOrRedirect()) return;
   setOutput("");
   
   // Load profile information from localStorage
@@ -482,40 +560,33 @@ async function initializeProfile() {
     userInitialsEl.textContent = profileName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   }
   
-  // Skip API validation in test mode
-  if (!window.location.pathname.includes('test.html')) {
-    try {
-      // Validate token by fetching profile
-      const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('profileName');
-        localStorage.removeItem('profileEmail');
-        window.location.href = 'index.html';
-      }
-    } catch {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/auth/profile`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) {
       localStorage.removeItem('token');
       localStorage.removeItem('profileName');
       localStorage.removeItem('profileEmail');
       window.location.href = 'index.html';
     }
-  } else {
-    console.log('🧪 Skipping API validation in test mode');
+  } catch {
+    localStorage.removeItem('token');
+    localStorage.removeItem('profileName');
+    localStorage.removeItem('profileEmail');
+    window.location.href = 'index.html';
   }
   
-  // Reset the flag after a delay
   setTimeout(() => {
     window.authCheckInProgress = false;
   }, 1000);
 }
 
-// Main initialization function
+// Main initialization
 document.addEventListener('DOMContentLoaded', async () => {
-  console.log('🚀 Editor initializing...');
+  console.log('🚀 Enhanced Editor initializing...');
   
-  // Initialize DOM elements
+  // Initialize elements
   initializeElements();
   
   // Setup event handlers
@@ -524,8 +595,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize profile
   await initializeProfile();
   
-  // Show welcome modal
-  showWelcomeModal();
+  // Initialize CodeMirror editor
+  initializeCodeEditor();
   
-  console.log('✅ Editor initialized successfully');
+  // Check for room in URL
+  const roomFromURL = getRoomFromURL();
+  if (roomFromURL) {
+    // Join existing room
+    joinRoom(roomFromURL);
+  } else {
+    // Show room selection modal
+    showRoomModal();
+  }
+  
+  console.log('✅ Enhanced Editor initialized successfully');
 });

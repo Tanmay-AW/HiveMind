@@ -7,6 +7,9 @@
   <base href="./">
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="editor.css" />
+  <!-- CodeMirror CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/material-darker.min.css">
 </head>
 <body>
   <header class="app-header" role="banner">
@@ -50,7 +53,9 @@
         </div>
       </div>
       <label for="code-editor" class="visually-hidden">Code editor</label>
-      <textarea id="code-editor" spellcheck="false" placeholder="// Write or paste your code here..."></textarea>
+      <div id="code-editor-container">
+        <textarea id="code-editor" spellcheck="false" placeholder="// Write or paste your code here..."></textarea>
+      </div>
     </section>
     <aside class="output-section">
       <div class="output-header">
@@ -69,17 +74,36 @@
     </div>
   </div>
 
-  <!-- Welcome Modal -->
-  <div id="welcome-modal" class="modal" role="dialog" hidden>
+  <!-- Room Selection Modal -->
+  <div id="room-modal" class="modal" role="dialog" hidden>
     <div class="glassmorphic-container" style="margin:0; text-align:center;">
-      <h2 class="neon-glow-heading">Welcome to the Editor!</h2>
-      <p>This is your collaborative workspace. Invite others by sharing the URL. Use the AI buttons to supercharge your coding.</p>
-      <button id="continue-to-editor" class="cta">Start Coding</button>
+      <h2 class="neon-glow-heading">Join or Create Room</h2>
+      <p>Collaborate with others in real-time. Create a new room or join an existing one.</p>
+      
+      <div class="room-controls" style="margin: 1.5rem 0; display: flex; flex-direction: column; gap: 1rem;">
+        <div>
+          <input type="text" id="room-id-input" placeholder="Enter Room ID (e.g., HM-1A2B3C)" 
+                 style="padding: 0.75rem; border-radius: 8px; border: 1px solid rgba(30, 144, 255, 0.3); 
+                        background: rgba(24, 25, 28, 0.8); color: var(--color-text); width: 100%; max-width: 250px;" />
+        </div>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <button id="join-room-btn" class="cta">Join Room</button>
+          <button id="create-room-btn" class="cta">Create New Room</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Scripts - Load config first, then editor -->
+  <!-- Scripts - Load config first, then CodeMirror, then editor -->
   <script src="config.js"></script>
+  <!-- CodeMirror JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/matchbrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/edit/closebrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/foldcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/addon/fold/brace-fold.min.js"></script>
   <script src="editor.js"></script>
 </body>
 </html>
