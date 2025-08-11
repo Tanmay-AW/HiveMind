@@ -1,8 +1,7 @@
 
+🐝 HiveMind – Real-Time Collaborative Coding Platform  
 
-HiveMind – Real-Time Collaborative Coding Platform
-
-Live Demo: hive-mind-ai.vercel.app
+*Live Demo:* [https://hive-mind-ai.vercel.app](https://hive-mind-ai.vercel.app)  
 
 HiveMind is a full-stack MERN application that enables developers to code together in real time. Whether it’s pair programming, remote team collaboration, coding interviews, or hackathons – HiveMind brings people together in a shared, interactive coding environment.
 
