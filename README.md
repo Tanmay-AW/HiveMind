@@ -49,7 +49,7 @@ AI Collaborators: ChatGPT, Gemini, Cursor, Perplexity
 Installation & Setup
 
 # Clone the repository
-git clone https://github.com/your-username/hivemind.git
+git clone [https://github.com/your-username/hivemind.git](https://github.com/Tanmay-AW/HiveMind.git)
 cd hivemind
 
 # Install dependencies for server and client
